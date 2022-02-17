@@ -1,0 +1,30 @@
+---
+- name: Setup Web Servers
+  hosts: db_servers
+  become: yes    # give root privilege
+  become_method: sudo
+  roles:         # do this roles before
+  - python          
+  tasks: 
+    - name: Install MySQL Dependencies
+      apt: name={{ item }} state=present
+      with_items:
+        - mysql-server
+        - mysql-client
+
+    - name: Start MySQL Service
+      service:
+        name: mysql
+        state: started
+        enabled: yes       # set it to run at ec2 instance startup
+
+    - name: Create Application Database
+      mysql_db: name={{ db_name }} state=present
+
+    - name: Create Database user
+      mysql_user:
+        name: "{{ db_user }}"
+        password: "{{ db_user_password }}"
+        priv: '*.*:ALL'
+        state: present
+        host: '%'
