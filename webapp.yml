@@ -1,0 +1,25 @@
+---
+- name: Setup Web Servers
+  hosts: web_servers
+  become: yes    # give root privilege
+  become_method: sudo
+  roles:         # do this roles before
+  - python          
+  tasks: 
+    - name: Install Python Flask dependency
+      pip:
+        name: "{{ item }}"
+        state: present
+      with_items:
+        - flask
+        - flask-mysql
+
+    - name: Copy source code
+      git:
+          repo: 'https://github.com/mmumshad/simple-webapp.git'
+          dest: /opt/simple-webapp
+
+    - name: Start web server
+      command: FLASK_APP=app.py flask run --host=0.0.0.0
+      args:
+        chdir: /opt/simple-webapp

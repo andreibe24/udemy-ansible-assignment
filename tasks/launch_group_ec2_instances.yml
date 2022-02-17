@@ -22,4 +22,5 @@
         hostname: "{{ item.public_ip }}"
         private_ip: "{{ item.private_ip }}"
         groupname: "{{ group }}"
+        connection: ssh        
       loop: "{{ ec2.instances }}"
