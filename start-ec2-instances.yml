@@ -1,0 +1,18 @@
+---
+- name: Terminate EC2 Instances
+  hosts: ansibleController
+  vars_files:
+  - ./group_vars/credentials.yml
+  tasks:
+  - name: Start EC2 instances
+    amazon.aws.ec2_instance:
+      key_name: aws_instance_key_pair           # SSH Key Pair
+      region: eu-west-3
+      aws_access_key: "{{ aws_access_key }}"    # credentials from vault file
+      aws_secret_key: "{{ aws_secret_key }}"  
+      state: running
+      filters:
+        instance-state-name: stopped
+        instance.group-name: Ansible
+
+    
