@@ -1,0 +1,30 @@
+    - name: Launch Instances
+      amazon.aws.ec2_instance:
+        name: "{{ item.group }}"
+        key_name: aws_instance_key_pair           # SSH Key Pair
+        instance_type: t2.micro
+        image_id: ami-0c6ebbd55ab05f070           # ubuntu server 20.04 image 64-bit Arm
+        region: eu-west-3
+        security_group: Ansible                   # security group [made in AWS Console before]
+        count: '{{ item.count }}'
+        vpc_subnet_id: subnet-07bec51cb606cb178
+        network:
+          assign_public_ip: yes
+        aws_access_key: "{{ item.aws_access_key }}"    # [made in AWS Console -> IAM User before]
+        aws_secret_key: "{{ item.aws_secret_key }}"
+        wait: yes                # wait for the instance to reach started state before returning.
+        state: started
+      register: ec2
+    
+    # - debug:
+    #     var: ec2
+
+    - name: Add instance to the ansible-playbook in-memory inventory
+      add_host:
+        hostname: "{{ instance.network_interfaces[0].association.public_ip }}"
+        private_ip: "{{ instance.network_interfaces[0].private_ip_address }}"
+        groupname: "{{ item.group }}"     # this is from deploy-ec2-instances.yml
+        connection: ssh        
+      loop: "{{ ec2.instances }}"
+      loop_control:          
+        loop_var: instance

@@ -1,28 +1,41 @@
 ---
-- name: Deploy EC2 Instances
+- name: Deploy EC2 Instances                  # ! It doesn't have Idempotency Property cause of amazon.aws.ec2_instance module !
   hosts: ansibleController
   vars_files:
   - ./group_vars/credentials.yml
+  - ./group_vars/all.yml
   vars: 
     aws_access_key: "{{ aws_access_key }}"    # credentials from vault file
     aws_secret_key: "{{ aws_secret_key }}"   
   tasks:
-    - name: Install Dependencies
-      apt: name={{ item }} state=present
-      with_items:
-       - python3-boto
-       - python3-boto3
-       - python3-botocore
-       - python3
+    # - name: Install Dependencies - part 1
+    #   apt: name={{ item }} state=present
+    #   with_items:
+    #    - python2                            # -> python/python2, but we neet pip/pip2
+    #   become: yes
+    # - name: Install Dependencies - part 2   # I did it manually because ansible didn't allow running it <- the AnsibleController already has python3
+    #   command: python get-pip.py            # -> pip/pip2
+    #   become: yes
+    # - name: Install Dependencies - part 3   # these packages should be installed with pip2 (pip3 is not recognised by aws.ec2 module)
+    #   pip: name={{ item }} state=present    # I did it manually 
+    #   with_items:
+    #    - boto
+    #    - boto3
+    #    - botocore
+    #   become: yes
 
-    - name: Create a new SSH ec2 key-pair
-      amazon.aws.ec2_key:
+    - name: Upload public key to AWS
+      amazon.aws.ec2_key:                     # amazon.aws needs pip boto, pip boto3, etc ; amazon.aws can't use pip3 boto 
         name: aws_instance_key_pair
-        state: present
+        key_material: "{{ lookup('file', '{{ path }}/.ssh/aws_instance_key_pair.pub') }}"  # [added in AWS Console before]
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        region: eu-west-3
 
-    - include: tasks/launch_group_ec2_instances.yml
+    - name: Deploy EC2 - web_servers group and db_servers   
+      include: tasks/group_instances.yml
       with_items:
       - { group: 'web_servers', count: '2', aws_access_key: "{{ aws_access_key }}", aws_secret_key: "{{ aws_secret_key }}"}
       - { group: 'db_servers', count: '1', aws_access_key: "{{ aws_access_key }}", aws_secret_key: "{{ aws_secret_key }}"}
 
-
+      
