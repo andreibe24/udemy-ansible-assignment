@@ -13,6 +13,20 @@
         network:
           assign_public_ip: yes
         aws_access_key: "{{ item.aws_access_key }}"    # [made in AWS Console -> IAM User before]
-        aws_secret_key: "{{ item.aws_secret_key }}"
-        wait: yes                         
+        aws_secret_key: "{{ item.aws_secret_key }}"                        
         state: started
+        wait: yes 
+      register: ec2
+
+    # - debug:
+    #   var: ec2
+
+    - name: Add instances to the inventory
+      lineinfile:
+        path: /home/croco/udemy-ansible-assignment/inventory.txt
+        insertafter: '^\[{{ item.group }}\]'
+        line: |-
+          ansible_host={{ instance.network_interfaces[0].association.public_ip }} ansible_connection=ssh
+      loop: "{{ ec2.instances }}"
+      loop_control:          
+        loop_var: instance
