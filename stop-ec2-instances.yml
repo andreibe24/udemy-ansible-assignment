@@ -14,5 +14,5 @@
       filters:
         tag-key: app_owner
       wait_timeout: 10                          # default value is 600s
-
+    ignore_errors: yes
        
