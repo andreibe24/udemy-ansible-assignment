@@ -1,2 +1,9 @@
 [ansibleController]
 localhost ansible_connection=ssh
+[web_servers]
+ansible_host=15.237.42.129 ansible_connection=ssh
+ansible_host=15.188.88.32 ansible_connection=ssh
+[db_servers]
+ansible_host=35.180.126.251 ansible_connection=ssh
+
+
