@@ -12,7 +12,8 @@
       aws_secret_key: "{{ aws_secret_key }}"  
       state: running
       filters:
-        instance-state-name: stopped
-        instance.group-name: Ansible
+        tag-key: app_owner
+      wait_timeout: 10                          # default value is 600s
+    ignore_errors: yes
 
     

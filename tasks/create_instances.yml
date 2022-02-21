@@ -1,6 +1,8 @@
     - name: Launch Instances
       amazon.aws.ec2_instance:
         name: "{{ item.group }}"
+        tags:
+          app_owner: john 
         key_name: aws_instance_key_pair           # SSH Key Pair
         instance_type: t2.micro
         image_id: ami-0c6ebbd55ab05f070           # ubuntu server 20.04 image 64-bit Arm
@@ -12,7 +14,7 @@
           assign_public_ip: yes
         aws_access_key: "{{ item.aws_access_key }}"    # [made in AWS Console -> IAM User before]
         aws_secret_key: "{{ item.aws_secret_key }}"
-        wait: yes                # wait for the instance to reach started state before returning.
+        wait: yes                         
         state: started
       register: ec2
     

@@ -33,7 +33,7 @@
         region: eu-west-3
 
     - name: Deploy EC2 - web_servers group and db_servers   
-      include: tasks/group_instances.yml
+      include: tasks/create_instances.yml
       with_items:
       - { group: 'web_servers', count: '2', aws_access_key: "{{ aws_access_key }}", aws_secret_key: "{{ aws_secret_key }}"}
       - { group: 'db_servers', count: '1', aws_access_key: "{{ aws_access_key }}", aws_secret_key: "{{ aws_secret_key }}"}

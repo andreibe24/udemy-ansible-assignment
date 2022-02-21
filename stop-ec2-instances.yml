@@ -4,7 +4,7 @@
   vars_files:
   - ./group_vars/credentials.yml
   tasks:
-  - name: Terminate every running instance in a region
+  - name: Stop EC2 instances
     amazon.aws.ec2_instance:
       key_name: aws_instance_key_pair           # SSH Key Pair
       region: eu-west-3
@@ -12,6 +12,7 @@
       aws_secret_key: "{{ aws_secret_key }}"  
       state: stopped
       filters:
-        instance-state-name: running
+        tag-key: app_owner
+      wait_timeout: 10                          # default value is 600s
 
-        
+       
