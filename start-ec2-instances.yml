@@ -12,8 +12,20 @@
       aws_secret_key: "{{ aws_secret_key }}"  
       state: running
       filters:
-        tag-key: app_owner
-      wait_timeout: 10                          # default value is 600s
-    ignore_errors: yes
+        tag-key: app_owner   
+    register: ec2
+    
+    # - debug:
+    #     var: ec2
+
+  - name: Add instance to the ansible-playbook in-memory inventory
+    add_host:
+      hostname: "{{ instance.network_interfaces[0].association.public_ip }}"
+      private_ip: "{{ instance.network_interfaces[0].private_ip_address }}"
+      groupname: "{{ item.group }}"     # this is from deploy-ec2-instances.yml
+      connection: ssh        
+    loop: "{{ ec2.instances }}"
+    loop_control:          
+      loop_var: instance
 
     
