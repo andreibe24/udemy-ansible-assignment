@@ -1,0 +1,14 @@
+# Tests:
+# http://<IP>:5000                            => Welcome
+# http://<IP>:5000/how%20are%20you            => I am good, how about you?
+# http://<IP>:5000/read%20from%20database     => db_user
+
+# Here we deploy all services needed:
+# - name: Step 1
+#   include: deploy-ec2-instances.yml
+# - name: Step 2
+#   include: dbserver.yml
+# - name: Step 3
+#   include: webapp.yml
+# - name: Step 4
+#   include: setup-networking.yml
