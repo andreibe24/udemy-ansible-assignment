@@ -1,19 +1,21 @@
 ---
 - name: Setup Web Servers
-  hosts: web_servers
-  become: yes    # give root privilege
-  become_method: sudo        
+  hosts: web_servers       
   tasks: 
     - name: Update Repository cache
       apt:
         update_cache: true
         cache_valid_time: 3600
         force_apt_get: true
+      become: yes
+      become_method: sudo 
     - name: Install APT dependencies
       apt: name="{{ item }}" state=present
       with_items:
       - python3
       - python3-pip
+      become: yes
+      become_method: sudo 
     - name: Install Python Flask dependency
       pip:
         name: "{{ item }}"
@@ -21,13 +23,19 @@
       with_items:
         - flask
         - flask-mysql
+      become: yes
+      become_method: sudo 
 
     - name: Copy source code
       git:
         repo: 'https://github.com/mmumshad/simple-webapp.git'
         dest: /opt/simple-webapp
+      become: yes
+      become_method: sudo   
 
     - name: Start web server
-      command: python3 -m flask run --host=0.0.0.0
+      command: "MYSQL_DATABASE_HOST='172.31.17.27' FLASK_APP=app.py flask run --host=0.0.0.0 --port=80"  # pass env var before running the app
       args:
         chdir: /opt/simple-webapp
+      become: yes
+      become_method: sudo 
