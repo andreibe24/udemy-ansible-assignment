@@ -18,7 +18,21 @@
     aws_access_key: "{{ aws_access_key }}"    # credentials from vault file
     aws_secret_key: "{{ aws_secret_key }}"   
   tasks:
-    - 
+    - name: Create Load balancer
+      community.aws.elb_application_lb:
+        name: webapp_lb
+        security_groups: 
+        - sg-0951fb8b8af7a406c
+        region: eu-west-3
+        aws_access_key: "{{ aws_access_key }}"
+        aws_secret_key: "{{ aws_secret_key }}"
+        listeners:
+        - Protocol: http
+          Port: 80
+          DefaultActions:
+          - Type: forward 
+            TargetGroupArn: 
+
   
   
 
