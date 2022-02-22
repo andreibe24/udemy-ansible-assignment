@@ -48,11 +48,15 @@
           - proto: tcp                          # allow communication between all instances: both webapp and dbserver (Private IPs)
             from_port: 80
             to_port: 80
-            group_name: Ansible
+            group_name: Ansible                 # members of this security group will get access
           - proto: icmp                         # for ping tests
             from_port: -1                       # all ports
             to_port: -1                         #
-            group_name: Ansible                 # members of this security group will get access
+            group_name: Ansible                 
+          - proto: tcp                          # dbserver sends on port 3306, so webapp server needs to allow it
+            from_port: 3306
+            to_port: 3306
+            group_name: Ansible
 
     - name: Deploy EC2 - web_servers group and db_servers   
       include: tasks/create_instances.yml

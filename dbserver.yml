@@ -82,3 +82,23 @@
         password: "{{ db_user_password }}"
         priv: "*.*:ALL"
         state: present
+        host: '%'
+
+    - name: Update MySQL Configuration file to accept connections from remote locations
+      ini_file:
+        path: /etc/mysql/my.cnf
+        #path: /etc/mysql/mysql.conf.d/mysqld.cnf
+        section: mysqld
+        option: bind-address
+        value: 0.0.0.0
+      become: yes    
+      become_method: sudo 
+
+    - name: Re-start MySQL Service
+      service:
+        name: mysql
+        state: restarted
+        enabled: yes
+      become: yes    
+      become_method: sudo 
+    
