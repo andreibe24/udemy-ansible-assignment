@@ -18,8 +18,8 @@
         wait: yes 
       register: ec2
 
-    # - debug:
-    #   var: ec2
+    - debug:
+        var: ec2
 
     - name: Add instances to the inventory
       lineinfile:
@@ -30,3 +30,14 @@
       loop: "{{ ec2.instances }}"
       loop_control:          
         loop_var: instance
+
+    - name: Save private IP of db server
+      set_fact:
+        db_private_ip: "{{ ec2.instances[0].network_interfaces[0].private_ip_address }}"
+        cacheable: true                        # save in ansible_facts
+      when: item.group == "db_servers"  
+
+    - name: Test
+      debug:
+        msg: "{{ ansible_facts['db_private_ip'] }}"
+      when: ansible_facts['db_private_ip'] is defined

@@ -33,8 +33,13 @@
       become: yes
       become_method: sudo   
 
+    - name: Test
+      debug:
+        msg: "{{ ansible_facts['db_private_ip'] }}"
+      when: ansible_facts['db_private_ip'] is defined
+
     - name: Start web server
-      command: "MYSQL_DATABASE_HOST='172.31.17.27' FLASK_APP=app.py flask run --host=0.0.0.0 --port=80"  # pass env var before running the app
+      command: "MYSQL_DATABASE_HOST='ansible_facts['db_private_ip']' FLASK_APP=app.py flask run --host=0.0.0.0 --port=80"  # pass env var before running the app
       args:
         chdir: /opt/simple-webapp
       become: yes
