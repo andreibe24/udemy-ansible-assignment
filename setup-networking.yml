@@ -1,0 +1,48 @@
+# In app.py there is this line:
+# mysql_database_host = 'MYSQL_DATABASE_HOST' in os.environ and os.environ['MYSQL_DATABASE_HOST'] or  'localhost'
+# So, we need to add the mysql server IP in that var
+
+# Also, we have to do a full duplex communication between webapps and dbserver -> AWS Security Group
+# Connect mysql server to webapp servers
+#- inbound rule for webapp server <- custom http from dbserver (his ip address)
+
+# Finally, Create a load balancer for all webapp servers
+
+---
+- name: Networking & Load balancing                 
+  hosts: ansibleController
+  vars_files:
+  - ./group_vars/credentials.yml
+  - ./group_vars/all.yml
+  vars: 
+    aws_access_key: "{{ aws_access_key }}"    # credentials from vault file
+    aws_secret_key: "{{ aws_secret_key }}"   
+  tasks:
+  - name: Create a new Security Group
+    amazon.aws.ec2_group:
+      name: Ansible
+      description: ansible group
+      vpc_id: vpc-0d9dca9688428eb78 
+      region: eu-west-3
+      aws_access_key: "{{ aws_access_key }}"
+      aws_secret_key: "{{ aws_secret_key }}"
+      rules:                                  # inbound rules
+        - proto: tcp
+          from_port: 22
+          to_port: 22
+          cidr_ip: 0.0.0.0/0
+        - proto: tcp                          # allow communication between all instances: both webapp and dbserver (Private IPs)
+          from_port: 80
+          to_port: 80
+          group_name: Ansible
+        - proto: icmp                         # for ping tests
+          from_port: -1                       # all ports
+          to_port: -1                         #
+          group_name: Ansible                 # members of this security group will get access
+  
+  
+
+
+
+
+
